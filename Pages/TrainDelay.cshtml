@@ -1,0 +1,64 @@
+@page "/traindelay"
+@inject HttpClient Http
+
+<h1>Train delay information</h1>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Last Update</th>
+                <th>Company</th>
+                <th>Line</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.LastUpdate.ToShortDateString()</td>
+                    <td>@forecast.Company</td>
+                    <td>@forecast.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@functions
+{
+    TrainForecast[] forecasts;
+
+    string url = "sample-data/traindelay.json";
+
+    protected override async Task OnInitAsync()
+    {
+        forecasts = await Http.GetJsonAsync<TrainForecast[]>(url);
+    }
+
+    class TrainForecast
+    {
+        public long LastupdateGmt { get; set; }
+        public DateTime LastUpdate
+        {
+            get
+            {
+                return ConvertUnixTime(LastupdateGmt);
+            }
+        }
+        public string Company { get; set; }
+        public string Name { get; set; }
+        public string Source { get; set; }
+
+        private DateTime ConvertUnixTime(long unixTime)
+        {
+            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        .AddSeconds(unixTime).ToLocalTime();
+        }
+    }
+}
