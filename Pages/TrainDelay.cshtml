@@ -21,7 +21,7 @@ else
             @foreach (var forecast in forecasts)
             {
                 <tr>
-                    <td>@forecast.LastUpdate.ToShortDateString()</td>
+                    <td>@forecast.LastUpdate.ToString()</td>
                     <td>@forecast.Company</td>
                     <td>@forecast.Name</td>
                 </tr>
@@ -34,7 +34,7 @@ else
 {
     TrainForecast[] forecasts;
 
-    string url = "sample-data/traindelay.json";
+    string url = "https://rti-giken.jp/fhc/api/train_tetsudo/delay.json";
 
     protected override async Task OnInitAsync()
     {
@@ -43,22 +43,16 @@ else
 
     class TrainForecast
     {
-        public long LastupdateGmt { get; set; }
-        public DateTime LastUpdate
+        public long Lastupdate_Gmt { get; set; }
+        public DateTimeOffset LastUpdate
         {
             get
             {
-                return ConvertUnixTime(LastupdateGmt);
+                return DateTimeOffset.FromUnixTimeMilliseconds(Lastupdate_Gmt);
             }
         }
         public string Company { get; set; }
         public string Name { get; set; }
         public string Source { get; set; }
-
-        private DateTime ConvertUnixTime(long unixTime)
-        {
-            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        .AddSeconds(unixTime).ToLocalTime();
-        }
     }
 }
